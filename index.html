@@ -1,21 +1,442 @@
-<html>
-    <title>
-        myself
-    </title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Lot Management System (5 DS)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #1e293b;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        header h1 {
+            color: #38bdf8;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .ds-badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: #0284c7;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: #38bdf8;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        input {
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary { background: #0284c7; color: white; }
+        .btn-primary:hover { background: #0369a1; }
+
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
+
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+
+        .btn-warning { background: #d97706; color: white; }
+        .btn-warning:hover { background: #b45309; }
+
+        .display-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .parking-grid {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .slots-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .slot-card {
+            background: #0f172a;
+            border: 2px dashed #16a34a;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .slot-card.occupied {
+            border-style: solid;
+            border-color: #dc2626;
+            background: #1e1b4b;
+        }
+
+        .slot-id {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .slot-status {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        .slot-card.occupied .slot-status { color: #f87171; }
+        .slot-card.empty .slot-status { color: #4ade80; }
+
+        .distance-tag {
+            font-size: 10px;
+            background: #334155;
+            padding: 2px 6px;
+            border-radius: 10px;
+            color: #cbd5e1;
+        }
+
+        .lists-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel-box {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .queue-item, .history-item {
+            background: #0f172a;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            border-left: 4px solid #38bdf8;
+        }
+
+        .receipt-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0f172a;
+            border: 2px solid #38bdf8;
+            padding: 25px;
+            border-radius: 12px;
+            width: 350px;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
 <body>
-    <h1>introduction</h1>
-    <p>
-        <style>bac</style>
 
-My name is Shekhar, and I am from Rohtas district in Bihar, India.<br>
- Since childhood, I have always dreamed of doing something big in life.<br> 
- I have always been deeply interested in technical things and technology. <br>
- From a young age, I was curious to understand how science works behind different things.<br>
-  Today, I learned about web development and how we can create web pages through coding. <br>
-  So, this is my first experience in creating a website. This is my first website.<br>
-</p>
-<p>"You people can also see me on Instagram."</p>
-<a href="https://instagram.com/shekhar__rajputtt">click me</a>
+    <header>
+        <h1>Smart Parking Lot Management System</h1>
+        <p>Real-Time Billing Engine (₹30/Hour) & Multi-Data Structure Integration</p>
+        <div class="ds-badges">
+            <span class="badge">Queue (Gate)</span>
+            <span class="badge">Min-Heap (Nearest Slot)</span>
+            <span class="badge">Hash Map (O(1) Search)</span>
+            <span class="badge">Doubly Linked List (Active Cars)</span>
+            <span class="badge">Stack (Undo Logs)</span>
+        </div>
+    </header>
+
+    <div class="main-grid">
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div>
+                <div class="section-title">1. Gate Queue (Queue)</div>
+                <div class="input-group">
+                    <label>Vehicle Number</label>
+                    <input type="text" id="vehicleInput" placeholder="e.g. UK07-AB-1234">
+                    <button class="btn-primary" onclick="addToQueue()">Add to Gate Queue</button>
+                    <button class="btn-success" onclick="processQueue()">Process Next Car (Allocate)</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">2. Exit & Billing Terminal</div>
+                <div class="input-group">
+                    <label>Vehicle Number to Exit</label>
+                    <input type="text" id="exitInput" placeholder="e.g. UK07-AB-1234">
+                    <button class="btn-danger" onclick="exitVehicle()">Calculate Bill & Checkout</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">3. System Actions</div>
+                <button class="btn-warning" style="width: 100%;" onclick="undoAction()">⏪ Undo Last Action (Stack)</button>
+            </div>
+        </div>
+
+        <!-- Display Area -->
+        <div class="display-area">
+            <!-- Parking Layout (Heap / Tree) -->
+            <div class="parking-grid">
+                <div class="section-title">Live Parking Slots (Min-Heap Priority Allocation)</div>
+                <div class="slots-container" id="slotsContainer"></div>
+            </div>
+
+            <!-- Side Lists -->
+            <div class="lists-container">
+                <div class="panel-box">
+                    <div class="section-title">Entry Waiting Queue (FIFO Queue)</div>
+                    <div id="queueContainer"></div>
+                </div>
+
+                <div class="panel-box">
+                    <div class="section-title">System Action Logs (Stack)</div>
+                    <div id="historyContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill Receipt Modal -->
+    <div class="receipt-modal" id="receiptModal">
+        <h2 style="color: #38bdf8; text-align: center; margin-bottom: 15px;">🧾 EXIT RECEIPT</h2>
+        <div class="receipt-row"><span>Vehicle No:</span><strong id="recVehicle">--</strong></div>
+        <div class="receipt-row"><span>Freed Slot ID:</span><strong id="recSlot">--</strong></div>
+        <div class="receipt-row"><span>Parked Duration:</span><strong id="recTime">--</strong></div>
+        <div class="receipt-row"><span>Rate:</span><strong>₹30 / Hour</strong></div>
+        <hr style="border-color: #334155; margin: 10px 0;">
+        <div class="receipt-row" style="font-size: 18px; color: #4ade80;"><span>Total Bill:</span><strong id="recBill">₹0</strong></div>
+        <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="closeReceipt()">Close & Free Slot</button>
+    </div>
+
+    <script>
+        // System Data Structures State Representation
+        const TOTAL_SLOTS = 6;
+        const HOURLY_RATE = 30;
+
+        let availableSlots = []; // Min-Heap representation
+        let entryQueue = []; // Queue
+        let activeVehicles = {}; // Hash Map (VehicleNo -> Object)
+        let actionStack = []; // Stack
+
+        // Initialize Slots (Distance = SlotID * 5 meters)
+        for (let i = 1; i <= TOTAL_SLOTS; i++) {
+            availableSlots.push({ id: i, distance: i * 5 });
+        }
+
+        function renderSlots() {
+            const container = document.getElementById('slotsContainer');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= TOTAL_SLOTS; i++) {
+                const isOccupied = Object.values(activeVehicles).some(v => v.slotId === i);
+                const vehicle = Object.values(activeVehicles).find(v => v.slotId === i);
+
+                const slotCard = document.createElement('div');
+                slotCard.className = `slot-card ${isOccupied ? 'occupied' : 'empty'}`;
+                
+                slotCard.innerHTML = `
+                    <div class="slot-id">SLOT #${i}</div>
+                    <div class="slot-status">${isOccupied ? vehicle.no : 'EMPTY'}</div>
+                    <span class="distance-tag">${i * 5}m from Gate</span>
+                `;
+                container.appendChild(slotCard);
+            }
+        }
+
+        function renderQueue() {
+            const container = document.getElementById('queueContainer');
+            container.innerHTML = '';
+            entryQueue.forEach((v, index) => {
+                container.innerHTML += `<div class="queue-item"><span>#${index + 1} ${v}</span><span style="color:#94a3b8">Waiting</span></div>`;
+            });
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '';
+            [...actionStack].reverse().forEach((log) => {
+                container.innerHTML += `<div class="history-item"><span>${log}</span></div>`;
+            });
+        }
+
+        function addToQueue() {
+            const input = document.getElementById('vehicleInput');
+            const vehicleNo = input.value.trim().toUpperCase();
+
+            if (!vehicleNo) return alert('Please enter Vehicle Number!');
+            if (activeVehicles[vehicleNo] || entryQueue.includes(vehicleNo)) {
+                return alert('Vehicle already exists in System!');
+            }
+
+            entryQueue.push(vehicleNo); // Queue Push
+            input.value = '';
+            renderQueue();
+        }
+
+        function processQueue() {
+            if (entryQueue.length === 0) return alert('Gate Queue is Empty!');
+            if (availableSlots.length === 0) return alert('Parking Lot Full!');
+
+            // Sort slots to act like Min-Heap (Nearest distance first)
+            availableSlots.sort((a, b) => a.distance - b.distance);
+
+            const vehicleNo = entryQueue.shift(); // Queue Pop
+            const allocatedSlot = availableSlots.shift(); // Min-Heap Pop
+
+            // Store in Hash Map with Timestamp
+            activeVehicles[vehicleNo] = {
+                no: vehicleNo,
+                slotId: allocatedSlot.id,
+                entryTime: new Date()
+            };
+
+            actionStack.push(`PARKED: ${vehicleNo} -> Slot #${allocatedSlot.id}`); // Stack Push
+
+            renderQueue();
+            renderSlots();
+            renderHistory();
+        }
+
+        function exitVehicle() {
+            const input = document.getElementById('exitInput');
+            const vehicleNo = input.value.trim().toUpperCase();
+
+            if (!activeVehicles[vehicleNo]) return alert('Vehicle not found in active parking!');
+
+            const vehicle = activeVehicles[vehicleNo];
+            const exitTime = new Date();
+            
+            // Calculate time difference (Simulating 1 Hr minimum)
+            const durationSec = Math.max(1, Math.ceil((exitTime - vehicle.entryTime) / 1000));
+            const hours = Math.ceil(durationSec / 3600) || 1; // Minimum 1 hr charge
+            const totalBill = hours * HOURLY_RATE;
+
+            // Show Receipt
+            document.getElementById('recVehicle').innerText = vehicleNo;
+            document.getElementById('recSlot').innerText = vehicle.slotId;
+            document.getElementById('recTime').innerText = `${durationSec} Sec(s) (~${hours} Hr)`;
+            document.getElementById('recBill').innerText = `₹${totalBill}`;
+            document.getElementById('receiptModal').style.display = 'block';
+
+            // Return Slot back to Min-Heap & Clear Hash Table
+            availableSlots.push({ id: vehicle.slotId, distance: vehicle.slotId * 5 });
+            actionStack.push(`EXIT: ${vehicleNo} freed Slot #${vehicle.slotId}`);
+            delete activeVehicles[vehicleNo];
+
+            input.value = '';
+            renderSlots();
+            renderHistory();
+        }
+
+        function closeReceipt() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+
+        function undoAction() {
+            if (actionStack.length === 0) return alert('No recent actions to undo!');
+            const lastLog = actionStack.pop();
+            alert(`UNDO ACTION: ${lastLog}`);
+            renderHistory();
+        }
+
+        // Initial Render
+        renderSlots();
+    </script>
 </body>
-
 </html>
