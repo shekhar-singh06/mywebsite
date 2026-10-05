@@ -8,21 +8,21 @@
 
 using namespace std;
 
-// Struct to store last action details in Stack
+
 struct ActionLog {
     string plate;
-    string type; // "REGULAR", "VIP", ya "QUEUE"
-    int index;   // Slot Number (Vector Index)
+    string type; 
+    int index;   
 };
 
-// Global C++ Data Structures (In-Memory Storage)
+
 vector<string> regularSlots(10, "FREE");
 vector<string> vipSlots(5, "FREE");
 queue<string> waitingQueue;
 unordered_map<string, string> vehicleHashMap;
-stack<ActionLog> undoStack; // <--- STACK DATA STRUCTURE (LIFO)
+stack<ActionLog> undoStack; 
 
-// JSON Helper Functions
+
 string vectorToJson(const vector<string>& vec) {
     string json = "[";
     for (size_t i = 0; i < vec.size(); ++i) {
@@ -44,7 +44,7 @@ string queueToJson(queue<string> q) {
 int main() {
     httplib::Server svr;
 
-    // API 1: Get Current Status
+   
     svr.Get("/api/status", [](const httplib::Request&, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         string json = "{";
@@ -56,7 +56,7 @@ int main() {
         res.set_content(json, "application/json");
     });
 
-    // API 2: Vehicle Entry + Stack Push Logic
+   
     svr.Post("/api/entry", [](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         string plate = req.get_param_value("plate");
@@ -71,7 +71,7 @@ int main() {
         ActionLog action;
         action.plate = plate;
 
-        // Check VIP Slots
+        
         if (type == "VIP") {
             for (size_t i = 0; i < vipSlots.size(); ++i) {
                 if (vipSlots[i] == "FREE") {
@@ -84,7 +84,7 @@ int main() {
             }
         }
 
-        // Check Regular Slots
+        
         if (allocated == "") {
             for (size_t i = 0; i < regularSlots.size(); ++i) {
                 if (regularSlots[i] == "FREE") {
@@ -97,7 +97,7 @@ int main() {
             }
         }
 
-        // Push to Queue if full
+       
         if (allocated == "") {
             waitingQueue.push(plate);
             allocated = "Waiting Queue (FIFO)";
@@ -107,7 +107,7 @@ int main() {
 
         vehicleHashMap[plate] = allocated;
         
-        // PUSH TO STACK (LIFO Operation)
+       
         undoStack.push(action);
 
         cout << "[C++ STACK PUSH] Vehicle Parked: " << plate << " | Stack Size: " << undoStack.size() << endl;
@@ -115,7 +115,7 @@ int main() {
         res.set_content("{\"status\":\"success\", \"location\":\"" + allocated + "\"}", "application/json");
     });
 
-    // API 3: UNDO LAST ENTRY (STACK POP - LIFO)
+   
     svr.Post("/api/undo", [](const httplib::Request&, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         
@@ -124,7 +124,7 @@ int main() {
             return;
         }
 
-        // POP TOP ELEMENT FROM STACK (LIFO)
+       
         ActionLog lastAction = undoStack.top();
         undoStack.pop();
 
@@ -155,7 +155,7 @@ int main() {
         res.set_content("{\"status\":\"success\", \"message\":\"" + msg + "\"}", "application/json");
     });
 
-    // API 4: Exit Vehicle
+   
     svr.Post("/api/exit", [](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         string plate = req.get_param_value("plate");
@@ -197,7 +197,7 @@ int main() {
         }
     });
 
-    // API 5: Hash Map Search O(1)
+    
     svr.Get("/api/search", [](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         string plate = req.get_param_value("plate");
