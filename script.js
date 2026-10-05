@@ -11,6 +11,13 @@ async function syncWithCppEngine() {
         renderSlots('vip-slots-container', data.vip, 'VIP');
         renderQueue(data.queue);
         updateStats(data.regular, data.vip, data.stackSize);
+
+        // Green Success Message in Terminal Log
+        const logContainer = document.getElementById('log-container');
+        if (logContainer) {
+            logContainer.innerHTML = 
+                `<div style="color: #10b981; font-weight: bold;">[CONNECTED] C++ DSA Engine Active (Stack Size: ${data.stackSize})</div>`;
+        }
     } catch (err) {
         const logContainer = document.getElementById('log-container');
         if (logContainer) {
