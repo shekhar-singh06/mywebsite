@@ -72,10 +72,8 @@ async function addVehicle(plate, type) {
         });
         const data = await response.json();
         if (data.status === "success") {
-            // Clear Input Box
             const plateInput = document.querySelector("input[placeholder*='UK07']") || document.querySelector("input[type='text']");
             if (plateInput) plateInput.value = "";
-            
             await syncWithCppEngine();
         } else {
             alert(data.message || "Error adding vehicle");
@@ -93,10 +91,8 @@ async function removeVehicle(plate) {
         });
         const data = await response.json();
         if (data.status === "success") {
-            // Clear Input Box
             const plateInput = document.querySelector("input[placeholder*='UK07']") || document.querySelector("input[type='text']");
             if (plateInput) plateInput.value = "";
-
             await syncWithCppEngine();
         } else {
             alert(data.message || "Vehicle not found");
@@ -135,16 +131,29 @@ async function searchVehicle(plate) {
     }
 }
 
-// --- 4. EXPLICIT BUTTON EVENT BINDINGS --- //
+// --- 4. EXPLICIT PREVENT-DEFAULT BINDINGS --- //
 document.addEventListener("DOMContentLoaded", () => {
     syncWithCppEngine();
     setInterval(syncWithCppEngine, 3000);
 
+    // Stop all forms from submitting automatically
+    document.querySelectorAll("form").forEach(form => {
+        form.onsubmit = (e) => e.preventDefault();
+    });
+
     document.querySelectorAll("button").forEach(btn => {
+        btn.type = "button"; // Force type='button' to prevent form submit
+
         const txt = btn.innerText.toLowerCase().trim();
 
-        if (txt.includes("entry")) {
-            btn.type = "button";
+        if (txt.includes("undo")) {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                undoLastAction();
+            };
+        } 
+        else if (txt.includes("entry")) {
             btn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -159,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         } 
         else if (txt.includes("exit")) {
-            btn.type = "button";
             btn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -170,16 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 removeVehicle(plate);
             };
         } 
-        else if (txt.includes("undo")) {
-            btn.type = "button";
-            btn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                undoLastAction();
-            };
-        }
         else if (txt.includes("search")) {
-            btn.type = "button";
             btn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
