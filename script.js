@@ -15,7 +15,7 @@ async function syncWithCppEngine() {
         const logContainer = document.getElementById('log-container');
         if (logContainer) {
             logContainer.innerHTML = 
-                `<div style="color: #ef4444; font-weight: bold;">[SERVER OFFLINE] Connecting to C++ Backend Server...</div>`;
+                `<div style="color: #ef4444; font-weight: bold;">[SERVER OFFLINE] Connecting to C++ Backend...</div>`;
         }
     }
 }
@@ -72,7 +72,11 @@ async function addVehicle(plate, type) {
         });
         const data = await response.json();
         if (data.status === "success") {
-            syncWithCppEngine();
+            // Clear Input Box
+            const plateInput = document.querySelector("input[placeholder*='UK07']") || document.querySelector("input[type='text']");
+            if (plateInput) plateInput.value = "";
+            
+            await syncWithCppEngine();
         } else {
             alert(data.message || "Error adding vehicle");
         }
@@ -89,7 +93,11 @@ async function removeVehicle(plate) {
         });
         const data = await response.json();
         if (data.status === "success") {
-            syncWithCppEngine();
+            // Clear Input Box
+            const plateInput = document.querySelector("input[placeholder*='UK07']") || document.querySelector("input[type='text']");
+            if (plateInput) plateInput.value = "";
+
+            await syncWithCppEngine();
         } else {
             alert(data.message || "Vehicle not found");
         }
@@ -98,7 +106,7 @@ async function removeVehicle(plate) {
     }
 }
 
-// Undo Last Entry (LIFO Stack)
+// Undo Last Action (LIFO Stack)
 async function undoLastAction() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/undo`, {
@@ -106,13 +114,13 @@ async function undoLastAction() {
         });
         const data = await response.json();
         alert(data.message || "Undo action executed!");
-        syncWithCppEngine();
+        await syncWithCppEngine();
     } catch (err) {
         alert("Error performing undo!");
     }
 }
 
-// Instant O(1) Hash Map Search
+// Search Vehicle O(1)
 async function searchVehicle(plate) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/search?plate=${encodeURIComponent(plate)}`);
@@ -127,20 +135,19 @@ async function searchVehicle(plate) {
     }
 }
 
-// --- 4. BUTTON CLICK EVENT HANDLERS --- //
+// --- 4. EXPLICIT BUTTON EVENT BINDINGS --- //
 document.addEventListener("DOMContentLoaded", () => {
-    // Sync state immediately and repeat every 3 seconds
     syncWithCppEngine();
     setInterval(syncWithCppEngine, 3000);
 
-    // Attach click listeners dynamically to buttons
     document.querySelectorAll("button").forEach(btn => {
-        const txt = btn.innerText.toLowerCase();
+        const txt = btn.innerText.toLowerCase().trim();
 
         if (txt.includes("entry")) {
             btn.type = "button";
             btn.onclick = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const plateInput = document.querySelector("input[placeholder*='UK07']") || document.querySelector("input[type='text']");
                 const typeSelect = document.querySelector("select");
                 
@@ -155,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.type = "button";
             btn.onclick = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const plateInput = document.querySelector("input[placeholder*='UK07']") || document.querySelector("input[type='text']");
                 const plate = plateInput ? plateInput.value.trim() : "";
 
@@ -166,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.type = "button";
             btn.onclick = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 undoLastAction();
             };
         }
@@ -173,6 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.type = "button";
             btn.onclick = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const inputs = document.querySelectorAll("input[type='text']");
                 const searchInput = inputs.length > 1 ? inputs[1] : inputs[0];
                 const plate = searchInput ? searchInput.value.trim() : "";
