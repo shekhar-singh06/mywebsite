@@ -173,7 +173,7 @@ int main() {
     cout << "========================================================\n";
     cout << "   PARKFLOW: C++ STACK & DSA SERVER RUNNING PORT " << port << "\n";
     cout << "========================================================\n";
-
+    svr.set_mount_point("/", ".");
     svr.listen("0.0.0.0", port);
     return 0;
 }
