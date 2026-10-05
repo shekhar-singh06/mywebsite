@@ -14,125 +14,115 @@ async function syncWithCppEngine() {
             `<div style="color: #ef4444;">[SERVER OFFLINE] C++ Backend Server is NOT running!</div>`;
     }
 }
+
 function renderSlots(containerId, slots, prefix) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-  slots.forEach((val, index) => {
-    const isOccupied = val !== "FREE";
-    container.innerHTML += `
-      <div class="slot-box ${prefix === 'VIP' ? 'vip-slot' : ''} ${isOccupied ? 'occupied' : ''}">
-        ${prefix} ${index + 1}<br>
-        <small>${isOccupied ? val : 'FREE'}</small>
-      </div>`;
-  });
+    const container = document.getElementById(containerId);
+    if (!container || !slots) return;
+    container.innerHTML = '';
+    slots.forEach((val, index) => {
+        const isOccupied = val !== "FREE";
+        container.innerHTML += `
+            <div class="slot-box ${prefix === 'VIP' ? 'vip-slot' : ''} ${isOccupied ? 'occupied' : ''}">
+                ${prefix} ${index + 1}<br>
+                <small>${isOccupied ? val : 'FREE'}</small>
+            </div>`;
+    });
 }
 
 function renderQueue(queueArr) {
-  const container = document.getElementById('queue-container');
-  if (!queueArr || queueArr.length === 0) {
-    container.innerText = "Queue is empty";
-  } else {
-    container.innerHTML = queueArr.map(car => `<span class="queue-tag">${car}</span>`).join(' ➔ ');
-  }
+    const container = document.getElementById('queue-container');
+    if (!container) return;
+    if (!queueArr || queueArr.length === 0) {
+        container.innerText = "Queue is empty";
+    } else {
+        container.innerHTML = queueArr.map(car => `<span class="queue-tag">${car}</span>`).join(' ');
+    }
 }
 
 function updateStats(reg, vip, stackSize) {
-  let occReg = reg.filter(s => s !== "FREE").length;
-  let occVip = vip.filter(s => s !== "FREE").length;
-  let totalOcc = occReg + occVip;
+    if (!reg || !vip) return;
+    let occReg = reg.filter(s => s !== "FREE").length;
+    let occVip = vip.filter(s => s !== "FREE").length;
+    let totalOcc = occReg + occVip;
 
-  document.getElementById('stat-total').innerText = "15";
-  document.getElementById('stat-occupied').innerText = totalOcc;
-  document.getElementById('stat-free').innerText = 15 - totalOcc;
-  document.getElementById('stat-stack').innerText = `${stackSize} Action(s)`;
+    const elTotal = document.getElementById('stat-total');
+    const elOcc = document.getElementById('stat-occupied');
+    const elFree = document.getElementById('stat-free');
+    const elActions = document.getElementById('stat-actions');
+
+    if (elTotal) elTotal.innerText = "15";
+    if (elOcc) elOcc.innerText = totalOcc;
+    if (elFree) elFree.innerText = 15 - totalOcc;
+    if (elActions) elActions.innerText = stackSize !== undefined ? stackSize : 0;
 }
 
-async function handleEntry() {
-  const plateInput = document.getElementById('plate-input');
-  const plate = plateInput.value.trim().toUpperCase();
-  const type = document.getElementById('type-select').value;
-  
-  if (!plate) return alert("Please enter a License Plate number!");
+// --- GATE OPERATIONS & REST API CALLS --- //
 
-  try {
-    const res = await fetch(`${API_URL}/entry?plate=${plate}&type=${type}`, { method: 'POST' });
-    const result = await res.json();
-    addLog(`[C++ API RESULT] Vehicle ${plate} allocated to ${result.location}`);
-    plateInput.value = '';
-    syncWithCppEngine();
-  } catch (e) {
-    alert("Error connecting to server!");
-  }
-}
-
-async function handleExit() {
-  const plateInput = document.getElementById('plate-input');
-  const plate = plateInput.value.trim().toUpperCase();
-  
-  if (!plate) return alert("Please enter a License Plate number!");
-
-  try {
-    const res = await fetch(`${API_URL}/exit?plate=${plate}`, { method: 'POST' });
-    const result = await res.json();
-
-    if (result.status === "success") {
-      addLog(`[C++ API RESULT] Vehicle ${plate} ${result.message}`);
-    } else {
-      addLog(`[C++ API ERROR] ${result.message}`);
+// 1. ADD VEHICLE ENTRY
+async function addVehicle(plate, type) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/entry?plate=${encodeURIComponent(plate)}&type=${encodeURIComponent(type)}`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        if (data.status === "success") {
+            syncWithCppEngine();
+        } else {
+            alert(data.message || "Error adding vehicle");
+        }
+    } catch (err) {
+        alert("Error connecting to server!");
     }
-
-    plateInput.value = '';
-    syncWithCppEngine();
-  } catch (e) {
-    alert("Error connecting to server!");
-  }
 }
 
-async function handleUndo() {
-  try {
-    const res = await fetch(`${API_URL}/undo`, { method: 'POST' });
-    const result = await res.json();
-
-    if (result.status === "success") {
-      addLog(`[C++ STACK UNDO (LIFO)] ${result.message}`);
-    } else {
-      addLog(`[C++ STACK ERROR] ${result.message}`);
+// 2. VEHICLE EXIT
+async function removeVehicle(plate) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/exit?plate=${encodeURIComponent(plate)}`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        if (data.status === "success") {
+            syncWithCppEngine();
+        } else {
+            alert(data.message || "Vehicle not found");
+        }
+    } catch (err) {
+        alert("Error connecting to server!");
     }
-    syncWithCppEngine();
-  } catch (e) {
-    alert("Error executing Undo action!");
-  }
 }
 
-async function handleSearch() {
-  const searchInput = document.getElementById('search-input');
-  const plate = searchInput.value.trim().toUpperCase();
-  const resDiv = document.getElementById('search-result');
-  
-  if (!plate) return alert("Enter License Plate to Search!");
-
-  try {
-    const res = await fetch(`${API_URL}/search?plate=${plate}`);
-    const result = await res.json();
-
-    if (result.found) {
-      resDiv.innerText = `[C++ HASH MAP O(1)] FOUND: ${plate} is in ${result.location}`;
-    } else {
-      resDiv.innerText = `[C++ HASH MAP O(1)] NOT FOUND: ${plate} not in memory.`;
+// 3. UNDO LAST ENTRY (STACK LIFO)
+async function undoLastAction() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/undo`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        alert(data.message || "Undo action executed!");
+        syncWithCppEngine();
+    } catch (err) {
+        alert("Error performing undo!");
     }
-  } catch (e) {
-    resDiv.innerText = "Error searching vehicle!";
-  }
 }
 
-function addLog(msg) {
-  const logBox = document.getElementById('log-container');
-  const time = new Date().toLocaleTimeString();
-  logBox.innerHTML = `<div>[${time}] ${msg}</div>` + logBox.innerHTML;
+// 4. INSTANT SEARCH O(1)
+async function searchVehicle(plate) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/search?plate=${encodeURIComponent(plate)}`);
+        const data = await response.json();
+        if (data.found) {
+            alert(`Vehicle ${plate} is parked at: ${data.location}`);
+        } else {
+            alert(`Vehicle ${plate} not found in Hash Map!`);
+        }
+    } catch (err) {
+        alert("Search request failed!");
+    }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  addLog("Connected to C++ Backend Server Engine.");
-  syncWithCppEngine();
-  setInterval(syncWithCppEngine, 1000);
+// Auto sync state on page load and loop every 3 seconds
+document.addEventListener("DOMContentLoaded", () => {
+    syncWithCppEngine();
+    setInterval(syncWithCppEngine, 3000);
 });
