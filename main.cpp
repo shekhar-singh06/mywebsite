@@ -167,9 +167,13 @@ int main() {
             res.set_content("{\"found\":false}", "application/json");
         }
     });
+    char* portStr = getenv("PORT");
+    int port = portStr ? atoi(portStr) : 8080;
+
     cout << "========================================================\n";
-    cout << "   PARKFLOW: C++ STACK & DSA SERVER RUNNING PORT 8080   \n";
+    cout << "   PARKFLOW: C++ STACK & DSA SERVER RUNNING PORT " << port << "\n";
     cout << "========================================================\n";
-    svr.listen("0.0.0.0", 8080);
+
+    svr.listen("0.0.0.0", port);
     return 0;
 }
