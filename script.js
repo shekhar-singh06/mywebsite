@@ -1,5 +1,7 @@
+// --- BACKEND API CONFIGURATION --- //
 const API_BASE_URL = "https://mywebsite-o7vb.onrender.com";
 
+// --- 1. REAL-TIME DATA SYNC ENGINE --- //
 async function syncWithCppEngine() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/status`);
@@ -10,11 +12,15 @@ async function syncWithCppEngine() {
         renderQueue(data.queue);
         updateStats(data.regular, data.vip, data.stackSize);
     } catch (err) {
-        document.getElementById('log-container').innerHTML = 
-            `<div style="color: #ef4444;">[SERVER OFFLINE] C++ Backend Server is NOT running!</div>`;
+        const logContainer = document.getElementById('log-container');
+        if (logContainer) {
+            logContainer.innerHTML = 
+                `<div style="color: #ef4444; font-weight: bold;">[SERVER OFFLINE] Connecting to C++ Backend Server...</div>`;
+        }
     }
 }
 
+// --- 2. UI RENDER FUNCTIONS --- //
 function renderSlots(containerId, slots, prefix) {
     const container = document.getElementById(containerId);
     if (!container || !slots) return;
@@ -56,9 +62,9 @@ function updateStats(reg, vip, stackSize) {
     if (elActions) elActions.innerText = stackSize !== undefined ? stackSize : 0;
 }
 
-// --- GATE OPERATIONS & REST API CALLS --- //
+// --- 3. REST API CALLS --- //
 
-// 1. ADD VEHICLE ENTRY
+// Vehicle Entry
 async function addVehicle(plate, type) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/entry?plate=${encodeURIComponent(plate)}&type=${encodeURIComponent(type)}`, {
@@ -75,7 +81,7 @@ async function addVehicle(plate, type) {
     }
 }
 
-// 2. VEHICLE EXIT
+// Vehicle Exit
 async function removeVehicle(plate) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/exit?plate=${encodeURIComponent(plate)}`, {
@@ -92,7 +98,7 @@ async function removeVehicle(plate) {
     }
 }
 
-// 3. UNDO LAST ENTRY (STACK LIFO)
+// Undo Last Entry (LIFO Stack)
 async function undoLastAction() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/undo`, {
@@ -106,7 +112,7 @@ async function undoLastAction() {
     }
 }
 
-// 4. INSTANT SEARCH O(1)
+// Instant O(1) Hash Map Search
 async function searchVehicle(plate) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/search?plate=${encodeURIComponent(plate)}`);
@@ -121,8 +127,59 @@ async function searchVehicle(plate) {
     }
 }
 
-// Auto sync state on page load and loop every 3 seconds
+// --- 4. BUTTON CLICK EVENT HANDLERS --- //
 document.addEventListener("DOMContentLoaded", () => {
+    // Sync state immediately and repeat every 3 seconds
     syncWithCppEngine();
     setInterval(syncWithCppEngine, 3000);
+
+    // Attach click listeners dynamically to buttons
+    document.querySelectorAll("button").forEach(btn => {
+        const txt = btn.innerText.toLowerCase();
+
+        if (txt.includes("entry")) {
+            btn.type = "button";
+            btn.onclick = (e) => {
+                e.preventDefault();
+                const plateInput = document.querySelector("input[placeholder*='UK07']") || document.querySelector("input[type='text']");
+                const typeSelect = document.querySelector("select");
+                
+                const plate = plateInput ? plateInput.value.trim() : "";
+                const type = typeSelect ? typeSelect.value : "Regular Vehicle";
+
+                if (!plate) return alert("Please enter License Plate!");
+                addVehicle(plate, type.toUpperCase().includes("VIP") ? "VIP" : "REGULAR");
+            };
+        } 
+        else if (txt.includes("exit")) {
+            btn.type = "button";
+            btn.onclick = (e) => {
+                e.preventDefault();
+                const plateInput = document.querySelector("input[placeholder*='UK07']") || document.querySelector("input[type='text']");
+                const plate = plateInput ? plateInput.value.trim() : "";
+
+                if (!plate) return alert("Please enter License Plate!");
+                removeVehicle(plate);
+            };
+        } 
+        else if (txt.includes("undo")) {
+            btn.type = "button";
+            btn.onclick = (e) => {
+                e.preventDefault();
+                undoLastAction();
+            };
+        }
+        else if (txt.includes("search")) {
+            btn.type = "button";
+            btn.onclick = (e) => {
+                e.preventDefault();
+                const inputs = document.querySelectorAll("input[type='text']");
+                const searchInput = inputs.length > 1 ? inputs[1] : inputs[0];
+                const plate = searchInput ? searchInput.value.trim() : "";
+
+                if (!plate) return alert("Enter Plate Number to Search!");
+                searchVehicle(plate);
+            };
+        }
+    });
 });
