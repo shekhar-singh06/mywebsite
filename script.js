@@ -1,20 +1,19 @@
-const API_URL = "http://localhost:8080/api";
+const API_BASE_URL = "https://mywebsite-o7vb.onrender.com";
 
 async function syncWithCppEngine() {
-  try {
-    const res = await fetch(`${API_URL}/status`);
-    const data = await res.json();
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/status`);
+        const data = await res.json();
 
-    renderSlots('slots-container', data.regular, 'Slot');
-    renderSlots('vip-slots-container', data.vip, 'VIP');
-    renderQueue(data.queue);
-    updateStats(data.regular, data.vip, data.stackSize);
-  } catch (err) {
-    document.getElementById('log-container').innerHTML = 
-      `<div style="color: #ef4444;">[SERVER OFFLINE] C++ Backend Server is NOT running! Run main.cpp in Terminal!</div>`;
-  }
+        renderSlots('slots-container', data.regular, 'Slot');
+        renderSlots('vip-slots-container', data.vip, 'VIP');
+        renderQueue(data.queue);
+        updateStats(data.regular, data.vip, data.stackSize);
+    } catch (err) {
+        document.getElementById('log-container').innerHTML = 
+            `<div style="color: #ef4444;">[SERVER OFFLINE] C++ Backend Server is NOT running!</div>`;
+    }
 }
-
 function renderSlots(containerId, slots, prefix) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
