@@ -1,6 +1,5 @@
 const API_URL = "http://localhost:8080/api";
 
-
 async function syncWithCppEngine() {
   try {
     const res = await fetch(`${API_URL}/status`);
@@ -49,7 +48,6 @@ function updateStats(reg, vip, stackSize) {
   document.getElementById('stat-stack').innerText = `${stackSize} Action(s)`;
 }
 
-
 async function handleEntry() {
   const plateInput = document.getElementById('plate-input');
   const plate = plateInput.value.trim().toUpperCase();
@@ -67,7 +65,6 @@ async function handleEntry() {
     alert("Error connecting to server!");
   }
 }
-
 
 async function handleExit() {
   const plateInput = document.getElementById('plate-input');
@@ -92,7 +89,6 @@ async function handleExit() {
   }
 }
 
-
 async function handleUndo() {
   try {
     const res = await fetch(`${API_URL}/undo`, { method: 'POST' });
@@ -108,7 +104,6 @@ async function handleUndo() {
     alert("Error executing Undo action!");
   }
 }
-
 
 async function handleSearch() {
   const searchInput = document.getElementById('search-input');
@@ -136,7 +131,6 @@ function addLog(msg) {
   const time = new Date().toLocaleTimeString();
   logBox.innerHTML = `<div>[${time}] ${msg}</div>` + logBox.innerHTML;
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
   addLog("Connected to C++ Backend Server Engine.");
