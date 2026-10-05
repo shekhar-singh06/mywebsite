@@ -1,6 +1,6 @@
 const API_URL = "http://localhost:8080/api";
 
-// Sync C++ Server Status Every 1 Second
+
 async function syncWithCppEngine() {
   try {
     const res = await fetch(`${API_URL}/status`);
@@ -49,7 +49,7 @@ function updateStats(reg, vip, stackSize) {
   document.getElementById('stat-stack').innerText = `${stackSize} Action(s)`;
 }
 
-// 1. ENTRY HANDLER
+
 async function handleEntry() {
   const plateInput = document.getElementById('plate-input');
   const plate = plateInput.value.trim().toUpperCase();
@@ -68,7 +68,7 @@ async function handleEntry() {
   }
 }
 
-// 2. EXIT HANDLER
+
 async function handleExit() {
   const plateInput = document.getElementById('plate-input');
   const plate = plateInput.value.trim().toUpperCase();
@@ -92,7 +92,7 @@ async function handleExit() {
   }
 }
 
-// 3. STACK UNDO HANDLER (LIFO)
+
 async function handleUndo() {
   try {
     const res = await fetch(`${API_URL}/undo`, { method: 'POST' });
@@ -109,7 +109,7 @@ async function handleUndo() {
   }
 }
 
-// 4. HASH MAP O(1) SEARCH HANDLER
+
 async function handleSearch() {
   const searchInput = document.getElementById('search-input');
   const plate = searchInput.value.trim().toUpperCase();
@@ -137,7 +137,7 @@ function addLog(msg) {
   logBox.innerHTML = `<div>[${time}] ${msg}</div>` + logBox.innerHTML;
 }
 
-// Initial Sync
+
 document.addEventListener('DOMContentLoaded', () => {
   addLog("Connected to C++ Backend Server Engine.");
   syncWithCppEngine();
