@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ParkFlow - Parking Management System</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+  <header class="navbar">
+    <div class="logo">
+      <i class="fa-solid fa-square-p"></i> ParkFlow
+    </div>
+
+    <div class="stats-bar">
+      <span>Total: <strong id="stat-total">15</strong></span>
+      <span>Occupied: <strong id="stat-occupied" class="text-danger">0</strong></span>
+      <span>Free: <strong id="stat-free" class="text-success">15</strong></span>
+      <span><strong id="stat-stack" class="text-purple"></strong></span>
+    </div>
+  </header>
+
+  <main class="dashboard-grid">
+
+    <section class="card">
+      <h2><i class="fa-solid fa-sliders"></i> Gate Operations</h2>
+
+      <div class="form-group">
+        <label for="plate-input">Vehicle License Plate</label>
+        <input type="text" id="plate-input" placeholder="e.g. UK07AB1234">
+      </div>
+
+      <div class="form-group">
+        <label for="type-select">Vehicle Category</label>
+        <select id="type-select">
+          <option value="REGULAR">Regular Vehicle</option>
+          <option value="VIP">VIP Vehicle</option>
+        </select>
+      </div>
+
+      <div class="btn-group">
+        <button type="button" class="btn btn-entry" onclick="handleEntry()">
+          <i class="fa-solid fa-right-to-bracket"></i> Entry
+        </button>
+
+        <button type="button" class="btn btn-exit" onclick="handleExit()">
+          <i class="fa-solid fa-right-from-bracket"></i> Exit
+        </button>
+      </div>
+
+      <button type="button" class="btn btn-undo" onclick="handleUndo()">
+        <i class="fa-solid fa-rotate-left"></i> Undo Last Entry
+      </button>
+
+      <hr class="divider">
+
+      <h2><i class="fa-solid fa-magnifying-glass"></i> Search Vehicle</h2>
+
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search Plate Number">
+
+        <button type="button" class="btn btn-search" onclick="handleSearch()">
+          <i class="fa-solid fa-search"></i> Search
+        </button>
+      </div>
+
+      <div id="search-result" class="search-result"></div>
+
+      <hr class="divider">
+
+      <h2><i class="fa-solid fa-route"></i> Shortest Path Navigation</h2>
+
+      <div class="form-group">
+        <label for="dest-input">Destination Slot / Node</label>
+        <input type="text" id="dest-input" placeholder="e.g. VIP_Slot_1">
+      </div>
+
+      <button type="button" class="btn btn-search" onclick="handleNavigation()" style="width: 100%;">
+        <i class="fa-solid fa-map-location-dot"></i> Find Route 
+      </button>
+
+      <div id="nav-result" class="search-result" style="color: #4ade80;"></div>
+    </section>
+
+    <section class="card">
+
+      <h2>
+        <i class="fa-solid fa-crown text-gold"></i>
+        VIP Slots
+      </h2>
+
+      <div id="vip-slots-container" class="slots-grid"></div>
+
+      <h2 class="section-title">
+        <i class="fa-solid fa-car"></i>
+        Regular Slots
+      </h2>
+
+      <div id="slots-container" class="slots-grid"></div>
+
+      <h2 class="section-title">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Waiting Queue
+      </h2>
+
+      <div id="queue-container" class="queue-box">
+        Queue is empty
+      </div>
+
+      <h2 class="section-title">
+        <i class="fa-solid fa-terminal"></i>
+        Terminal Log
+      </h2>
+
+      <div id="log-container" class="log-box">
+        Connecting to C++ Backend Server...
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
