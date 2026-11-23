@@ -1,4 +1,4 @@
-const API_URL = "https://parkflow-backend-1fvy.onrender.com/api";[cite: 1]
+const API_URL = "https://parkflow-backend-1fvy.onrender.com/api";
 
 async function syncWithCppEngine() {
   try {
