@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <string>
 #include "httplib.h"
 #include "ParkingLot.h"
 #include "graph.h"
@@ -99,10 +101,13 @@ int main() {
         res.set_content(responseJson, "application/json");
     });
 
-    cout << "Parking Lot C++ Backend Engine Initialized Successfully!" << endl;
-    cout << "Server started at http://localhost:8080" << endl;
+    const char* port_env = getenv("PORT");
+    int port = port_env ? stoi(port_env) : 8080;
 
-    svr.listen("localhost", 8080);
+    cout << "Parking Lot C++ Backend Engine Initialized Successfully!" << endl;
+    cout << "Server running on port " << port << endl;
+
+    svr.listen("0.0.0.0", port);
 
     return 0;
 }
