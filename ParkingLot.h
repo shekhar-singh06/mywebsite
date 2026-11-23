@@ -15,7 +15,7 @@ class ParkingLot
 {
 private:
     ParkingSlots slots;
-    waitingqueue waitingqueue;
+    waitingqueue queue;
     VehicleHashMap vehicleMap;
     UndoStack undoStack;
 
