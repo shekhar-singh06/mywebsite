@@ -9,7 +9,7 @@ string ParkingLot::getStatus()
     string json = "{";
     json += "\"regular\":" + slots.getRegularJson() + ",";
     json += "\"vip\":" + slots.getVIPJson() + ",";
-    json += "\"queue\":" + waitingqueue.getQueueJson() + ",";
+    json += "\"queue\":" + queue.getQueueJson() + ",";
     json += "\"stackSize\":" + to_string(undoStack.size());
     json += "}";
     return json;
@@ -17,17 +17,17 @@ string ParkingLot::getStatus()
 
 string ParkingLot::vehicleEntry(string plate, string type)
 {
-    return VehicleManager::handleEntry(plate, type, slots, waitingqueue, vehicleMap, undoStack);
+    return VehicleManager::handleEntry(plate, type, slots, queue, vehicleMap, undoStack);
 }
 
 string ParkingLot::vehicleExit(string plate)
 {
-    return VehicleManager::handleExit(plate, slots, waitingqueue, vehicleMap, undoStack);
+    return VehicleManager::handleExit(plate, slots, queue, vehicleMap, undoStack);
 }
 
 string ParkingLot::undoLastAction()
 {
-    return undoStack.undoLastAction(slots, waitingqueue, vehicleMap);
+    return undoStack.undoLastAction(slots, queue, vehicleMap);
 }
 
 string ParkingLot::searchVehicle(string plate)
