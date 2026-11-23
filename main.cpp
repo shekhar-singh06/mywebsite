@@ -55,6 +55,16 @@ int main() {
         res.status = 200;
     });
 
+    svr.Get("/", [&](const httplib::Request& req, httplib::Response& res) {
+        set_cors_headers(res);
+        res.set_content("ParkFlow C++ Backend Running", "text/plain");
+    });
+
+    svr.Get("/ping", [&](const httplib::Request& req, httplib::Response& res) {
+        set_cors_headers(res);
+        res.set_content("{\"ok\":true}", "application/json");
+    });
+
     svr.Get("/api/status", [&](const httplib::Request& req, httplib::Response& res) {
         set_cors_headers(res);
         string jsonStatus = parkingLot.getStatus();
